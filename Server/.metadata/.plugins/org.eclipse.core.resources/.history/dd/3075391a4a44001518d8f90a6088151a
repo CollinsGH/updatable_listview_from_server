@@ -1,0 +1,5 @@
+package server_for_dynamic_listview.servlet.entity;
+
+public class Student {
+
+}

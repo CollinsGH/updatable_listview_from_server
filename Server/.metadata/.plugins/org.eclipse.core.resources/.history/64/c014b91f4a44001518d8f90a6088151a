@@ -1,0 +1,9 @@
+package server_for_dynamic_listview.servlet.entity;
+
+import java.io.Serializable;
+
+public class Student implements Serializable{
+
+	private static final long serialVersionUID = 5560759037890586822L;
+
+}

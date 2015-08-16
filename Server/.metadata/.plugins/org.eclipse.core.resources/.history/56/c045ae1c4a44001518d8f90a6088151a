@@ -1,0 +1,7 @@
+package server_for_dynamic_listview.servlet.entity;
+
+import java.io.Serializable;
+
+public class Student implements Serializable{
+
+}

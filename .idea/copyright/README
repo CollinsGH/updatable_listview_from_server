@@ -1,0 +1,15 @@
+本项目包含了本地和从server获取，两种实现ListView的方法
+
+本地的listview的就不再阐述了，设置adapter就是那三步骤：1：data source;2.setup and initialize adapter;3.connection;
+
+server端的：
+1. Server封装JSONArray数据，放入Student集合数据；
+2.Client解析JSONArray，构造数据源；
+
+data形式：
+因为是对象集合，所以我们用Array
+[
+{"id":"1","name":"Alice","age":"11"},
+{"":"","":"","":""},
+{"":"","":"","":""}
+]
