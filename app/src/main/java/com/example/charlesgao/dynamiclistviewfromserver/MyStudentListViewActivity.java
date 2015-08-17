@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -21,6 +23,8 @@ import Service.ShowStudentsListService;
 
 public class MyStudentListViewActivity extends Activity {
 
+    SwipeRefreshLayout swipeRefreshLayout;
+
     private ListView listViewStudent;
     private List<Student> studentList;
     private StudentAdapter studentAdapter;
@@ -36,8 +40,8 @@ public class MyStudentListViewActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.student_activity);
-
+        setContentView(R.layout.swipe_refrashable_student_activity);
+        swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.id_layout_swipe_refresh);
 
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(MyStudentListViewActivity.this);
@@ -47,7 +51,7 @@ public class MyStudentListViewActivity extends Activity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        listViewStudent = (ListView) findViewById(R.id.id_listView_student);
+        listViewStudent = (ListView) findViewById(R.id.id_swipe_refreshable_listView_student);
 
 //        /**
 //         * Data Source: from local
@@ -68,13 +72,10 @@ public class MyStudentListViewActivity extends Activity {
 //        listViewStudent.setAdapter(studentAdapter);
 
 
-
-
-
         /**
          * Sub-Thread:
          */
-        new Thread(new Runnable() {
+        final Thread getStudentListThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -97,11 +98,52 @@ public class MyStudentListViewActivity extends Activity {
                     Message msg = new Message();
                     Bundle data = new Bundle();
                     data.putSerializable("errorMsg", MSG_STUDENT_ERROR );
+                    Log.d("TAG","!!!!!!!!!!!!!!!!!!!!!!");
                     msg.setData(data);
                     iHandler.sendMessage(msg);
                 }
             }
-        }).start();
+        });
+        getStudentListThread.start();
+
+        // This is a swipeRefreshLayout that can update the info from the Server by swiping it.
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // SwipeUpdate(); can add more behavior
+//                getStudentListThread.run();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            /**
+                             * Data Source: from Server
+                             */
+                            studentList = showStudentsListService.getStudents();
+                            iHandler.sendEmptyMessage(FLAG_STUDENT_SUCCESS);
+
+                        } catch (ServiceRulesException e){
+                            e.printStackTrace();
+                            Message msg = new Message();
+                            Bundle data = new Bundle();
+                            data.putSerializable("errorMsg", e.getMessage() );
+                            msg.setData(data);
+                            iHandler.sendMessage(msg);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Message msg = new Message();
+                            Bundle data = new Bundle();
+                            data.putSerializable("errorMsg", MSG_STUDENT_ERROR );
+                            Log.d("TAG","!!!!!!!!!!!!!!!!!!!!!!");
+                            msg.setData(data);
+                            iHandler.sendMessage(msg);
+                        }
+                    }
+                }).start();
+                Toast.makeText(MyStudentListViewActivity.this, "REFRESHING...", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
     }
 
@@ -161,6 +203,10 @@ public class MyStudentListViewActivity extends Activity {
 
 
     }
+
+
+    // Here can add more behavior
+    public void SwipeUpdate(){}
 
 
     @Override
