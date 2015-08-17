@@ -32,6 +32,7 @@ public class ServerForDynamicListView extends HttpServlet {
 		System.out.println("--GET--");
 
 		List<Student> studentList = new ArrayList<Student>();
+		studentList.add(new Student(0, "Verona", 18));
 		studentList.add(new Student(1, "Alice", 21));
 		studentList.add(new Student(2, "Bob", 22));
 		studentList.add(new Student(3, "Charlie", 23));
